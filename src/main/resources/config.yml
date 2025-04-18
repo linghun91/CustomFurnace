@@ -1,0 +1,18 @@
+# CustomFurnace 配置文件
+# 全局设置
+debug: false
+
+# 显示设置
+display:
+  # 是否启用盔甲架全息信息显示
+  armorstand-hologram: true
+  # 是否启用掉落物悬浮标签显示
+  dropped-item-hologram: true
+
+# 经济系统设置
+economy:
+  use-vault: true  # 是否使用Vault经济系统
+  use-points: true  # 是否使用点券系统
+
+# 熔炉设置
+save-interval: 300  # 数据保存间隔(秒) 
