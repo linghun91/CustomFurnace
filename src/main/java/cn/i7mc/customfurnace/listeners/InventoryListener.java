@@ -3,7 +3,6 @@ package cn.i7mc.customfurnace.listeners;
 import cn.i7mc.customfurnace.CustomFurnace;
 import cn.i7mc.customfurnace.gui.FurnaceUpgradeGUI;
 import cn.i7mc.customfurnace.models.CustomFurnaceData;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;

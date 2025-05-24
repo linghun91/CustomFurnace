@@ -11,23 +11,23 @@ import org.bukkit.entity.Player;
  */
 public class MessageUtil {
     private final LangManager langManager;
-    
+
     public MessageUtil(LangManager langManager) {
         this.langManager = langManager;
     }
-    
+
     /**
      * 发送消息给命令发送者
      */
     public void sendMessage(CommandSender sender, String key, Object... args) {
         if (sender == null) return;
-        
+
         String message = langManager.getMessage(key, args);
         if (!message.isEmpty()) {
             sender.sendMessage(message);
         }
     }
-    
+
     /**
      * 发送消息给玩家
      */
@@ -35,20 +35,20 @@ public class MessageUtil {
         if (player == null || !player.isOnline()) return;
         sendMessage((CommandSender) player, key, args);
     }
-    
+
     /**
      * 发送调试消息给命令发送者
      */
     public void sendDebug(CommandSender sender, String key, Object... args) {
         if (sender == null) return;
         if (!langManager.isDebugEnabled()) return;
-        
+
         String message = langManager.getDebugMessage(key, args);
         if (!message.isEmpty()) {
             sender.sendMessage(ChatColor.DARK_GRAY + "[DEBUG] " + message);
         }
     }
-    
+
     /**
      * 发送调试消息给玩家
      */
@@ -56,7 +56,7 @@ public class MessageUtil {
         if (player == null || !player.isOnline()) return;
         sendDebug((CommandSender) player, key, args);
     }
-    
+
     /**
      * 发送全局消息
      */
@@ -66,16 +66,18 @@ public class MessageUtil {
             Bukkit.broadcastMessage(message);
         }
     }
-    
+
     /**
-     * 记录调试信息到控制台
+     * 记录调试日志到控制台
      */
     public void logDebug(String key, Object... args) {
         if (!langManager.isDebugEnabled()) return;
-        
+
         String message = langManager.getDebugMessage(key, args);
         if (!message.isEmpty()) {
-            Bukkit.getLogger().info(ChatColor.DARK_GRAY + "[DEBUG] " + message);
+            Bukkit.getLogger().info("[DEBUG] " + message);
         }
     }
-} 
+
+
+}

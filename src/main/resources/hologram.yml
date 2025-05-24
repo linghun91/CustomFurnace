@@ -1,0 +1,167 @@
+# CustomFurnace 全息图配置文件
+# TextDisplay 全息显示参数配置
+
+# 全息图基本设置
+hologram:
+  # 是否启用全息图显示
+  enabled: true
+
+  # 全息图位置偏移设置
+  position:
+    # X轴偏移 (相对于方块中心)
+    x_offset: 0.5
+    # Y轴偏移 (相对于方块顶部)
+    y_offset: 0.9
+    # Z轴偏移 (相对于方块中心)
+    z_offset: 0.5
+
+# TextDisplay 文本样式配置
+text_style:
+  # 文本对齐方式 (LEFT, CENTER, RIGHT)
+  alignment: "CENTER"
+
+  # 换行前的最大行宽
+  line_width: 200
+
+  # 文本透明度 (0-255, -1为默认值)
+  text_opacity: 255
+
+  # 是否显示文本阴影
+  shadowed: true
+
+  # 是否透视显示 (穿透方块显示)
+  see_through: false
+
+  # 是否使用默认背景
+  default_background: false
+
+  # 背景颜色 (RGB格式: r,g,b 或 null禁用)
+  background_color: null
+
+# TextDisplay 显示属性配置
+display_properties:
+  # 广告牌模式 (FIXED, VERTICAL, HORIZONTAL, CENTER)
+  # FIXED: 固定方向不旋转
+  # VERTICAL: 垂直旋转面向玩家
+  # HORIZONTAL: 水平旋转面向玩家
+  # CENTER: 完全面向玩家
+  billboard: "CENTER"
+
+  # 显示宽度
+  display_width: 2.0
+
+  # 显示高度
+  display_height: 0.5
+
+  # 视距范围 (玩家多远能看到)
+  view_range: 64.0
+
+  # 发光颜色覆盖 (RGB格式: r,g,b 或 null禁用)
+  glow_color_override: null
+
+  # 亮度设置 (解决字体颜色偏暗问题)
+  brightness:
+    # 是否启用自定义亮度 (false使用环境光照)
+    enabled: true
+    # 方块光照等级 (0-15)
+    block_light: 15
+    # 天空光照等级 (0-15)
+    sky_light: 15
+
+# 阴影效果配置
+shadow:
+  # 阴影半径
+  shadow_radius: 0.3
+
+  # 阴影强度 (0.0-1.0)
+  shadow_strength: 0.8
+
+# 动画插值配置
+animation:
+  # 插值持续时间 (tick, 20tick=1秒)
+  interpolation_duration: 10
+
+  # 插值延迟 (tick)
+  interpolation_delay: 0
+
+# 实体属性配置
+entity_properties:
+  # 是否受重力影响
+  gravity: false
+
+  # 是否持久化 (服务器重启后保留)
+  persistent: true
+
+  # 是否静音 (不发出声音)
+  silent: true
+
+  # 是否发光
+  glowing: false
+
+  # 是否无敌
+  invulnerable: true
+
+# 颜色代码配置
+color_codes:
+  # 是否启用颜色代码解析
+  enabled: true
+
+  # 颜色代码格式 (LEGACY: &代码, MINIMESSAGE: <color>代码)
+  format: "LEGACY"
+
+  # 是否启用渐变色支持
+  gradient_support: false
+
+  # 是否启用RGB颜色支持
+  rgb_support: true
+
+# 文本格式化配置
+text_formatting:
+  # 是否启用粗体
+  bold: false
+
+  # 是否启用斜体
+  italic: false
+
+  # 是否启用下划线
+  underlined: false
+
+  # 是否启用删除线
+  strikethrough: false
+
+  # 是否启用混淆文字
+  obfuscated: false
+
+# 性能优化配置
+performance:
+  # 全息图更新间隔 (tick)
+  update_interval: 20
+
+  # 最大同时显示的全息图数量
+  max_holograms: 1000
+
+  # 是否启用距离检查优化
+  distance_check: true
+
+  # 距离检查范围
+  distance_check_range: 100.0
+
+# 安全配置
+security:
+  # 唯一标识符，用于识别我们自己创建的全息图（仅调试模式使用）
+  # 主要通过NBT标签识别，这确保不会误删其他插件的全息图
+  unique_marker: "[CF]"
+
+  # 是否在全息图文本中显示标识符（调试用，正常使用请设为false）
+  show_marker: false
+
+# 调试配置
+debug:
+  # 是否启用调试模式
+  enabled: false
+
+  # 是否显示全息图边界框
+  show_bounding_box: false
+
+  # 是否记录全息图创建/删除日志
+  log_operations: false

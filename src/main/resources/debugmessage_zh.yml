@@ -25,6 +25,7 @@ data:
   autosave_started: "自动保存任务启动：间隔 %interval% 秒"
   furnace_applied: "应用熔炉数据：位置 %location%，类型 %type%，等级 %level%，UUID %uuid%"
   uuid_created_for_legacy: "为旧格式数据创建UUID：位置 %location%"
+  furnace_removed: "移除熔炉数据：位置 %location%，UUID %uuid%"
 economy:
   vault_enabled: "Vault经济系统已启用：%provider%"
   vault_disabled: "Vault经济系统未启用"
@@ -35,4 +36,14 @@ economy:
   points_withdraw_success: "扣除玩家 %player% 点券 %amount% 成功"
   points_withdraw_fail: "扣除玩家 %player% 点券 %amount% 失败: %reason%"
   vault_balance_check: "检查玩家 %player% 金币余额: %balance%"
-  points_balance_check: "检查玩家 %player% 点券余额: %balance%" 
+  points_balance_check: "检查玩家 %player% 点券余额: %balance%"
+hologram:
+  created: "创建全息图：位置 %location%，UUID %uuid%"
+  removed: "移除全息图：位置 %location%"
+  removed_by_uuid: "通过UUID移除全息图：%uuid%"
+  config_loaded: "全息图配置已加载"
+  config_reloaded: "全息图配置已重载"
+  color_parse_error: "颜色代码解析失败：%text% - %error%"
+  text_updated: "更新全息图文本：UUID %uuid%"
+  force_removed: "强制移除全息图：位置 %location%"
+  brightness_set: "设置全息图亮度：方块光照 %block_light%，天空光照 %sky_light%"

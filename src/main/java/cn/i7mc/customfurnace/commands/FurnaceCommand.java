@@ -13,12 +13,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.event.Listener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 熔炉命令处理器
@@ -26,15 +23,15 @@ import java.util.stream.Collectors;
 public class FurnaceCommand implements CommandExecutor, TabCompleter {
     private final CustomFurnace plugin;
     private final FurnaceManager furnaceManager;
-    
+
     private static final List<String> FURNACE_TYPES = Arrays.asList("furnace", "blast_furnace", "smoker");
     private static final List<String> COMMANDS = Arrays.asList("help", "info", "upgrade", "give", "reload");
-    
+
     public FurnaceCommand(CustomFurnace plugin) {
         this.plugin = plugin;
         this.furnaceManager = plugin.getFurnaceManager();
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // 检查是否有权限
@@ -42,19 +39,19 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
             plugin.getMessageUtil().sendMessage(sender, "messages.no_permission");
             return true;
         }
-        
+
         // 如果没有参数，显示帮助
         if (args.length == 0) {
             showHelp(sender);
             return true;
         }
-        
+
         // 处理子命令
         switch (args[0].toLowerCase()) {
             case "help":
                 showHelp(sender);
                 break;
-                
+
             case "info":
                 if (!(sender instanceof Player)) {
                     plugin.getMessageUtil().sendMessage(sender, "messages.player_only");
@@ -62,7 +59,7 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 }
                 showInfo((Player) sender);
                 break;
-                
+
             case "upgrade":
                 if (!(sender instanceof Player)) {
                     plugin.getMessageUtil().sendMessage(sender, "messages.player_only");
@@ -74,7 +71,7 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 }
                 openUpgradeGUI((Player) sender);
                 break;
-                
+
             case "give":
                 if (!hasPermission(sender, "customfurnace.admin")) {
                     plugin.getMessageUtil().sendMessage(sender, "messages.no_permission");
@@ -82,7 +79,7 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 }
                 handleGiveCommand(sender, args);
                 break;
-                
+
             case "reload":
                 if (!hasPermission(sender, "customfurnace.admin")) {
                     plugin.getMessageUtil().sendMessage(sender, "messages.no_permission");
@@ -101,23 +98,23 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 // 发送重载成功消息
                 plugin.getMessageUtil().sendMessage(sender, "messages.reload_success");
                 break;
-                
+
             case "checkecon":
                 handleCheckEconomyCommand(sender);
                 break;
-                
+
             default:
                 plugin.getMessageUtil().sendMessage(sender, "messages.unknown_command");
                 break;
         }
-        
+
         return true;
     }
-    
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-        
+
         if (args.length == 1) {
             // 主命令补全
             String partial = args[0].toLowerCase();
@@ -155,7 +152,7 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                     int maxLevelVault = furnaceManager.getMaxLevel(type, FurnaceManager.PAYMENT_VAULT);
                     int maxLevelPoints = furnaceManager.getMaxLevel(type, FurnaceManager.PAYMENT_POINTS);
                     int maxLevel = Math.max(maxLevelVault, maxLevelPoints);
-                    
+
                     for (int i = 1; i <= maxLevel; i++) {
                         completions.add(String.valueOf(i));
                     }
@@ -173,10 +170,10 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 }
             }
         }
-        
+
         return completions;
     }
-    
+
     /**
      * 获取命令对应的权限
      */
@@ -191,14 +188,14 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 return "customfurnace.use";
         }
     }
-    
+
     /**
      * 检查发送者是否有指定权限
      */
     private boolean hasPermission(CommandSender sender, String permission) {
         return sender.hasPermission(permission) || sender.isOp();
     }
-    
+
     /**
      * 显示帮助信息
      */
@@ -206,80 +203,86 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
         plugin.getMessageUtil().sendMessage(sender, "messages.help_header");
         plugin.getMessageUtil().sendMessage(sender, "messages.help_info");
         plugin.getMessageUtil().sendMessage(sender, "messages.help_upgrade");
-        
+
         if (sender.hasPermission("customfurnace.admin")) {
             plugin.getMessageUtil().sendMessage(sender, "messages.help_give");
             plugin.getMessageUtil().sendMessage(sender, "messages.help_reload");
             plugin.getMessageUtil().sendMessage(sender, "messages.help_checkecon");
         }
-        
+
         plugin.getMessageUtil().sendMessage(sender, "messages.help_footer");
     }
-    
+
     /**
      * 显示手持熔炉信息
      */
     private void showInfo(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
-        
+
         // 检查是否为熔炉
         if (!isFurnaceType(item.getType())) {
             plugin.getMessageUtil().sendMessage(player, "messages.not_furnace");
             return;
         }
-        
+
         // 尝试获取自定义熔炉数据
         CustomFurnaceData data = CustomFurnaceData.fromItem(plugin, item);
         if (data == null) {
             plugin.getMessageUtil().sendMessage(player, "messages.not_custom_furnace");
             return;
         }
-        
+
         // 显示熔炉信息
         plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_header");
-        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_type", 
+        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_type",
                 "type", data.getLevel().getType());
-        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_level", 
+        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_level",
                 "level", data.getLevel().getLevel());
-        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_speed", 
+        plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_speed",
                 "speed", data.getLevel().getCookingTime());
-        
-        // 检查是否可以升级
-        if (furnaceManager.canUpgrade(data.getLevel().getType(), data.getLevel().getLevel())) {
-            int cost = furnaceManager.getUpgradeCost(data.getLevel().getType(), data.getLevel().getLevel());
-            plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_upgrade", 
+
+        // 检查是否可以升级 - 使用新的API方法，支持支付类型
+        String paymentType = data.getPaymentType();
+        if (furnaceManager.canUpgrade(data.getLevel().getType(), data.getLevel().getLevel(), paymentType)) {
+            int cost;
+            if (FurnaceManager.PAYMENT_VAULT.equals(paymentType)) {
+                cost = furnaceManager.getVaultUpgradeCost(data.getLevel().getType(), data.getLevel().getLevel());
+            } else {
+                cost = furnaceManager.getPointsUpgradeCost(data.getLevel().getType(), data.getLevel().getLevel());
+            }
+            plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_upgrade",
                     "cost", cost);
         } else {
             plugin.getMessageUtil().sendMessage(player, "messages.furnace_info_max_level");
         }
     }
-    
+
     /**
      * 打开升级界面
      */
     private void openUpgradeGUI(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
-        
+
         // 检查是否为熔炉
         if (!isFurnaceType(item.getType())) {
             plugin.getMessageUtil().sendMessage(player, "messages.not_furnace");
             return;
         }
-        
+
         // 尝试获取自定义熔炉数据
         CustomFurnaceData data = CustomFurnaceData.fromItem(plugin, item);
         if (data == null) {
             plugin.getMessageUtil().sendMessage(player, "messages.not_custom_furnace");
             return;
         }
-        
+
         // 从主类获取InventoryListener实例
         InventoryListener inventoryListener = plugin.getInventoryListener();
-        
+
         // 打开升级界面
         inventoryListener.openUpgradeGUI(player, item);
     }
-    
+
     /**
      * 处理给予命令
      */
@@ -289,27 +292,27 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
             plugin.getMessageUtil().sendMessage(sender, "messages.give_usage");
             return;
         }
-        
+
         // 获取玩家
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            plugin.getMessageUtil().sendMessage(sender, "messages.player_not_found", 
+            plugin.getMessageUtil().sendMessage(sender, "messages.player_not_found",
                     "player", args[1]);
             return;
         }
-        
+
         // 获取熔炉类型
         String type = args[2].toLowerCase();
         if (!FURNACE_TYPES.contains(type)) {
             plugin.getMessageUtil().sendMessage(sender, "messages.invalid_furnace_type");
             return;
         }
-        
+
         // 获取等级
         int level;
         try {
             level = Integer.parseInt(args[3]);
-            
+
             // 获取支付方式，默认为金币
             String paymentType = FurnaceManager.PAYMENT_VAULT;
             if (args.length >= 5) {
@@ -318,21 +321,21 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                     paymentType = FurnaceManager.PAYMENT_POINTS;
                 }
             }
-            
+
             // 获取对应支付方式的最高等级
             int maxLevel = furnaceManager.getMaxLevel(type, paymentType);
-            
+
             if (level < 1 || level > maxLevel) {
-                plugin.getMessageUtil().sendMessage(sender, "messages.invalid_level", 
+                plugin.getMessageUtil().sendMessage(sender, "messages.invalid_level",
                         "max", maxLevel);
                 return;
             }
-            
+
         } catch (NumberFormatException e) {
             plugin.getMessageUtil().sendMessage(sender, "messages.invalid_level_number");
             return;
         }
-        
+
         // 获取支付方式，默认为金币
         String paymentType = FurnaceManager.PAYMENT_VAULT;
         if (args.length >= 5) {
@@ -341,28 +344,29 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
                 paymentType = FurnaceManager.PAYMENT_POINTS;
             }
         }
-        
+
         // 创建并给予熔炉
         ItemStack furnace = furnaceManager.createFurnaceItem(type, level, paymentType);
         if (furnace != null) {
             target.getInventory().addItem(furnace);
-            plugin.getMessageUtil().sendMessage(sender, "messages.give_success", 
+            String paymentTypeText = plugin.getLangManager().getRawMessage("payment_types." + paymentType);
+            plugin.getMessageUtil().sendMessage(sender, "messages.give_success",
                     "player", target.getName(),
                     "type", type,
                     "level", level,
-                    "payment", paymentType.equals(FurnaceManager.PAYMENT_VAULT) ? "金币" : "点券");
+                    "payment", paymentTypeText);
         }
     }
-    
+
     /**
      * 检查物品是否为熔炉类型
      */
     private boolean isFurnaceType(Material material) {
-        return material == Material.FURNACE || 
-               material == Material.BLAST_FURNACE || 
+        return material == Material.FURNACE ||
+               material == Material.BLAST_FURNACE ||
                material == Material.SMOKER;
     }
-    
+
     /**
      * 处理 checkeconomy 命令 - 检查经济系统状态
      */
@@ -371,29 +375,33 @@ public class FurnaceCommand implements CommandExecutor, TabCompleter {
             plugin.getMessageUtil().sendMessage(sender, "messages.no_permission");
             return;
         }
-        
+
         // 获取经济管理器
         EconomyManager economyManager = plugin.getEconomyManager();
-        
+
         // 输出经济系统状态
-        sender.sendMessage("§6=== 经济系统状态 ===");
-        sender.sendMessage("§fVault经济系统: " + (economyManager.isVaultEnabled() ? "§a已启用" : "§c未启用"));
-        sender.sendMessage("§fPlayerPoints点券系统: " + (economyManager.isPointsEnabled() ? "§a已启用" : "§c未启用"));
-        
+        sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage("economy_status.header")));
+        sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage(
+            economyManager.isVaultEnabled() ? "economy_status.vault_enabled" : "economy_status.vault_disabled")));
+        sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage(
+            economyManager.isPointsEnabled() ? "economy_status.points_enabled" : "economy_status.points_disabled")));
+
         // 如果发送者是玩家，显示其余额
         if (sender instanceof Player) {
             Player player = (Player) sender;
             if (economyManager.isVaultEnabled()) {
                 double balance = economyManager.getVaultBalance(player);
-                sender.sendMessage("§f您的金币余额: §e" + balance);
+                sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage("economy_status.vault_balance")
+                    .replace("%balance%", String.valueOf(balance))));
             }
-            
+
             if (economyManager.isPointsEnabled()) {
                 int points = economyManager.getPointsBalance(player);
-                sender.sendMessage("§f您的点券余额: §b" + points);
+                sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage("economy_status.points_balance")
+                    .replace("%balance%", String.valueOf(points))));
             }
         }
-        
-        sender.sendMessage("§6==================");
+
+        sender.sendMessage(plugin.getLangManager().colorize(plugin.getLangManager().getRawMessage("economy_status.footer")));
     }
-} 
+}

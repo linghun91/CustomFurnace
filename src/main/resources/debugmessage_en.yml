@@ -1,0 +1,38 @@
+# CustomFurnace Debug Message Configuration
+plugin:
+  debug_mode: "Debug mode enabled"
+  listeners_registered: "Event listeners registered"
+  commands_registered: "Commands registered"
+furnace:
+  placed: "Furnace placed: type %type%, level %level%, UUID %uuid%"
+  broken: "Furnace broken: type %type%, level %level%, UUID %uuid%"
+  burn: "Furnace burn event triggered"
+  start_smelt: "Furnace started smelting: speed %speed%"
+  smelt_complete: "Item smelting completed"
+  extract: "Item extracted from furnace"
+  inventory_interact: "Interacted with furnace inventory"
+gui:
+  open: "Opened furnace upgrade GUI: type %type%, level %level%"
+  upgrade_click: "Clicked upgrade button: type %type%, level %level%, cost %cost%"
+  upgrade_success: "Furnace upgrade successful: type %type%, from level %old_level% to %new_level%"
+  upgrade_fail: "Furnace upgrade failed: type %type%, level %level%, reason %reason%"
+command:
+  execute: "Executed command: %command% %args%"
+  give: "Gave furnace: player %player%, type %type%, level %level%"
+data:
+  loaded: "Loaded furnace data: %count% total"
+  saved: "Saved furnace data: %count% total"
+  autosave_started: "Auto-save task started: interval %interval% seconds"
+  furnace_applied: "Applied furnace data: location %location%, type %type%, level %level%, UUID %uuid%"
+  uuid_created_for_legacy: "Created UUID for legacy data: location %location%"
+economy:
+  vault_enabled: "Vault economy system enabled: %provider%"
+  vault_disabled: "Vault economy system not enabled"
+  points_enabled: "PlayerPoints system enabled"
+  points_disabled: "PlayerPoints system not enabled"
+  vault_withdraw_success: "Successfully withdrew %amount% coins from player %player%"
+  vault_withdraw_fail: "Failed to withdraw %amount% coins from player %player%: %reason%"
+  points_withdraw_success: "Successfully withdrew %amount% points from player %player%"
+  points_withdraw_fail: "Failed to withdraw %amount% points from player %player%: %reason%"
+  vault_balance_check: "Checked player %player% coin balance: %balance%"
+  points_balance_check: "Checked player %player% points balance: %balance%"

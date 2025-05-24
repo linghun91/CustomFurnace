@@ -24,11 +24,11 @@ public class EconomyManager {
         this.plugin = plugin;
         boolean vaultSuccess = setupEconomy();
         boolean pointsSuccess = setupPlayerPoints();
-        
+
         // 输出初始化结果
-        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "经济系统初始化状态: " + 
-                                           (vaultSuccess ? ChatColor.GREEN + "Vault=成功" : ChatColor.RED + "Vault=失败") + 
-                                           ChatColor.GREEN + ", " + 
+        Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "经济系统初始化状态: " +
+                                           (vaultSuccess ? ChatColor.GREEN + "Vault=成功" : ChatColor.RED + "Vault=失败") +
+                                           ChatColor.GREEN + ", " +
                                            (pointsSuccess ? ChatColor.GREEN + "PlayerPoints=成功" : ChatColor.RED + "PlayerPoints=失败"));
     }
 
@@ -46,7 +46,7 @@ public class EconomyManager {
             vaultEnabled = false;
             return false;
         }
-        
+
         Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "Vault插件已找到，尝试获取经济服务...");
 
         RegisteredServiceProvider<Economy> rsp = Bukkit.getServicesManager().getRegistration(Economy.class);
@@ -58,13 +58,13 @@ public class EconomyManager {
 
         economy = rsp.getProvider();
         vaultEnabled = (economy != null);
-        
+
         if (vaultEnabled) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "成功连接到Vault经济系统: " + economy.getName());
         } else {
             Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.RED + "无法连接到Vault经济系统");
         }
-        
+
         return vaultEnabled;
     }
 
@@ -83,13 +83,13 @@ public class EconomyManager {
             pointsEnabled = false;
             return false;
         }
-        
+
         Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "PlayerPoints插件已找到，尝试获取API...");
 
         try {
             pointsAPI = pointsPlugin.getAPI();
             pointsEnabled = (pointsAPI != null);
-            
+
             if (pointsEnabled) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.GREEN + "成功连接到PlayerPoints点券系统");
             } else {
@@ -100,7 +100,7 @@ public class EconomyManager {
             e.printStackTrace();
             pointsEnabled = false;
         }
-        
+
         return pointsEnabled;
     }
 
@@ -126,7 +126,7 @@ public class EconomyManager {
             plugin.getLogger().warning("尝试检查金币余额，但Vault经济系统未启用");
             return false;
         }
-        
+
         boolean hasEnough = economy.has(player, amount);
         return hasEnough;
     }
@@ -138,7 +138,7 @@ public class EconomyManager {
         if (!isPointsEnabled()) {
             return false;
         }
-        
+
         int balance = pointsAPI.look(player.getUniqueId());
         boolean hasEnough = balance >= amount;
         return hasEnough;
@@ -152,20 +152,14 @@ public class EconomyManager {
             plugin.getLogger().warning("尝试扣除金币，但Vault经济系统未启用");
             return false;
         }
-        
+
         if (!hasEnoughVaultBalance(player, amount)) {
             return false;
         }
-        
-        double before = economy.getBalance(player);
+
         EconomyResponse response = economy.withdrawPlayer(player, amount);
-        double after = economy.getBalance(player);
-        
-        if (response.transactionSuccess()) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return response.transactionSuccess();
     }
 
     /**
@@ -175,20 +169,14 @@ public class EconomyManager {
         if (!isPointsEnabled()) {
             return false;
         }
-        
+
         if (!hasEnoughPoints(player, amount)) {
             return false;
         }
-        
-        int before = pointsAPI.look(player.getUniqueId());
+
         boolean success = pointsAPI.take(player.getUniqueId(), amount);
-        int after = pointsAPI.look(player.getUniqueId());
-        
-        if (success) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return success;
     }
 
     /**
@@ -210,4 +198,4 @@ public class EconomyManager {
         }
         return pointsAPI.look(player.getUniqueId());
     }
-} 
+}
