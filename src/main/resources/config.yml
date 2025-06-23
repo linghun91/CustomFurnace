@@ -1,0 +1,60 @@
+# CustomFurnace 配置文件
+# 全局设置
+debug: false
+
+# 显示设置
+display:
+  # 是否启用文本显示全息信息
+  text-display-hologram: true
+  # TextDisplay显示参数设置
+  text-display-settings:
+    # 文本对齐方式 (可选: LEFT, CENTER, RIGHT)
+    alignment: CENTER
+    # 是否显示文本阴影
+    shadowed: true
+    # 是否允许文本透视查看
+    see-through: true
+    # 广告牌模式 (可选: FIXED, VERTICAL, CENTER, HORIZONTAL)
+    billboard: CENTER
+    # 文本背景颜色 (ARGB格式，0为完全透明)
+    # 格式: A,R,G,B (例如: 0,0,0,0 为完全透明)
+    background-color: "0,0,0,0"
+    # 文本不透明度 (0-255，-1表示默认)
+    text-opacity: -1
+    # 最大行宽度 (像素)
+    line-width: 200
+    # Y轴偏移量，调整悬浮高度
+    y-offset: 0.8
+  # 进度条设置
+  progress-bar:
+    # 是否启用进度条
+    enabled: true
+    # 进度条更新间隔 (tick，20tick = 1秒)
+    update-interval: 5
+    # 进度条长度
+    length: 15
+    # 进度条字符
+    character: "I"
+    # 进度条开始字符
+    start-char: "["
+    # 进度条结束字符
+    end-char: "]"
+    # 进度条边框颜色
+    border-color: "&8"
+    # 已完成部分颜色（支持多种颜色渐变）
+    filled-colors:
+      - "&a"  # 绿色（开始）
+      - "&e"  # 黄色（中间）
+      - "&c"  # 红色（结束）
+    # 未完成部分颜色
+    empty-color: "&7"
+  # 是否启用掉落物悬浮标签显示
+  dropped-item-hologram: true
+
+# 经济系统设置
+economy:
+  use-vault: true  # 是否使用Vault经济系统
+  use-points: true  # 是否使用点券系统
+
+# 熔炉设置
+save-interval: 300  # 数据保存间隔(秒) 
