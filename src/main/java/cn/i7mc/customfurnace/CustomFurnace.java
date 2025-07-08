@@ -34,8 +34,6 @@ extends JavaPlugin {
     private TextDisplayUtil textDisplayUtil;
     private FurnaceListener furnaceListener;
     private InventoryListener inventoryListener;
-    private ExplosionListener explosionListener;
-    private BukkitTask furnaceProgressTask;
 
     public void onEnable() {
         this.configManager = new ConfigManager(this);
@@ -63,18 +61,20 @@ extends JavaPlugin {
     }
 
     private void registerListeners() {
-        PluginManager pm = this.getServer().getPluginManager();
-        this.furnaceListener = new FurnaceListener(this);
-        pm.registerEvents((Listener)this.furnaceListener, (Plugin)this);
-        this.inventoryListener = new InventoryListener(this);
-        pm.registerEvents((Listener)this.inventoryListener, (Plugin)this);
-        this.explosionListener = new ExplosionListener(this);
-        pm.registerEvents((Listener)this.explosionListener, (Plugin)this);
-        if (this.configManager.isDebugEnabled()) {
-            this.messageUtil.logDebug("plugin.listeners_registered", new Object[0]);
-        }
+        PluginManager pm = getServer().getPluginManager();
+
+        // 初始化并注册熔炉监听器
+        furnaceListener = new FurnaceListener(this);
+        pm.registerEvents(furnaceListener, this);
+
+        // 初始化并注册物品栏监听器
+        inventoryListener = new InventoryListener(this);
+        pm.registerEvents(inventoryListener, this);
     }
 
+    /**
+     * 注册命令
+     */
     private void registerCommands() {
         FurnaceCommand furnaceCommand = new FurnaceCommand(this);
         this.getCommand("furnace").setExecutor((CommandExecutor)furnaceCommand);

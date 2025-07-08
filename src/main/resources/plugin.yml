@@ -31,4 +31,4 @@ permissions:
       customfurnace.use: true
       customfurnace.upgrade: true
       customfurnace.upgrade.vault: true
-      customfurnace.upgrade.points: true 
+      customfurnace.upgrade.points: true
