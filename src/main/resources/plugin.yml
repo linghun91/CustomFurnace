@@ -2,8 +2,8 @@ name: CustomFurnace
 version: '${version}'
 main: cn.i7mc.customfurnace.CustomFurnace
 api-version: '1.20'
-authors: [i7MC]
-description: '一款高级熔炉插件，支持自定义熔炉等级和升级'
+authors: [Saga]
+description: '${description}'
 depend: [Vault, PlayerPoints]
 commands:
   furnace:
@@ -31,4 +31,4 @@ permissions:
       customfurnace.use: true
       customfurnace.upgrade: true
       customfurnace.upgrade.vault: true
-      customfurnace.upgrade.points: true
+      customfurnace.upgrade.points: true 

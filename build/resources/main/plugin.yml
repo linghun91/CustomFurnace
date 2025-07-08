@@ -1,0 +1,34 @@
+name: CustomFurnace
+version: '1.2.0.15'
+main: cn.i7mc.customfurnace.CustomFurnace
+api-version: '1.20'
+authors: [Saga]
+description: 'Processes main resources.'
+depend: [Vault, PlayerPoints]
+commands:
+  furnace:
+    description: CustomFurnace主命令
+    usage: /<command> [help|info|upgrade|give|reload]
+    aliases: [cf, customfurnace]
+
+permissions:
+  customfurnace.use:
+    description: 使用基础功能权限
+    default: true
+  customfurnace.upgrade:
+    description: 升级熔炉权限
+    default: true
+  customfurnace.upgrade.vault:
+    description: 使用金币升级权限
+    default: true
+  customfurnace.upgrade.points:
+    description: 使用点券升级权限
+    default: true
+  customfurnace.admin:
+    description: 管理员权限
+    default: op
+    children:
+      customfurnace.use: true
+      customfurnace.upgrade: true
+      customfurnace.upgrade.vault: true
+      customfurnace.upgrade.points: true 

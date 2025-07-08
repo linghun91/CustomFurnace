@@ -1,166 +1,135 @@
 package cn.i7mc.customfurnace;
 
 import cn.i7mc.customfurnace.commands.FurnaceCommand;
+import cn.i7mc.customfurnace.listeners.ExplosionListener;
 import cn.i7mc.customfurnace.listeners.FurnaceListener;
 import cn.i7mc.customfurnace.listeners.InventoryListener;
 import cn.i7mc.customfurnace.managers.ConfigManager;
 import cn.i7mc.customfurnace.managers.DataManager;
 import cn.i7mc.customfurnace.managers.EconomyManager;
 import cn.i7mc.customfurnace.managers.FurnaceManager;
-import cn.i7mc.customfurnace.managers.HologramManager;
 import cn.i7mc.customfurnace.managers.LangManager;
 import cn.i7mc.customfurnace.utils.MessageUtil;
+import cn.i7mc.customfurnace.utils.TextDisplayUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
-public class CustomFurnace extends JavaPlugin {
+public class CustomFurnace
+extends JavaPlugin {
     private ConfigManager configManager;
     private LangManager langManager;
     private FurnaceManager furnaceManager;
     private DataManager dataManager;
     private MessageUtil messageUtil;
     private EconomyManager economyManager;
-    private HologramManager hologramManager;
-
-    // 监听器实例
+    private TextDisplayUtil textDisplayUtil;
     private FurnaceListener furnaceListener;
     private InventoryListener inventoryListener;
+    private ExplosionListener explosionListener;
+    private BukkitTask furnaceProgressTask;
 
-    @Override
     public void onEnable() {
-        // 初始化配置管理器
-        configManager = new ConfigManager(this);
-
-        // 初始化语言管理器
-        langManager = new LangManager(configManager);
-
-        // 初始化消息工具
-        messageUtil = new MessageUtil(langManager);
-
-        // 初始化熔炉管理器
-        furnaceManager = new FurnaceManager(this, configManager, langManager);
-
-        // 初始化数据管理器
-        dataManager = new DataManager(this);
-
-        // 初始化经济管理器
-        economyManager = new EconomyManager(this);
-
-        // 初始化全息显示管理器
-        hologramManager = new HologramManager(this);
-
-        // 注册事件监听器
-        registerListeners();
-
-        // 注册命令
-        registerCommands();
-
-        // 应用所有已保存的熔炉数据
-        dataManager.applyAllFurnaces();
+        this.configManager = new ConfigManager(this);
+        this.langManager = new LangManager(this.configManager);
+        this.messageUtil = new MessageUtil(this.langManager);
+        this.textDisplayUtil = new TextDisplayUtil(this);
+        this.furnaceManager = new FurnaceManager(this, this.configManager, this.langManager);
+        this.dataManager = new DataManager(this);
+        this.economyManager = new EconomyManager(this);
+        this.registerListeners();
+        this.registerCommands();
+        this.dataManager.applyAllFurnaces();
+        Bukkit.getConsoleSender().sendMessage(String.valueOf(ChatColor.DARK_AQUA) + "[CustomFurnace] " + String.valueOf(ChatColor.GREEN) + this.langManager.getRawMessage("plugin.enable"));
+        Bukkit.getConsoleSender().sendMessage(String.valueOf(ChatColor.DARK_AQUA) + "[CustomFurnace] " + String.valueOf(ChatColor.AQUA) + "QQ2680517068\u4e13\u5c5e\u7684\u5b9a\u5236\u63d2\u4ef6");
+        if (this.configManager.isDebugEnabled()) {
+            this.messageUtil.logDebug("plugin.debug_mode", new Object[0]);
+        }
+        if (this.configManager.isProgressBarEnabled()) {
+            int updateInterval = this.configManager.getProgressBarUpdateInterval();
+            this.getServer().getScheduler().runTaskTimer((Plugin)this, () -> this.dataManager.updateFurnaceProgressBars(), 20L, (long)updateInterval);
+            if (this.configManager.isDebugEnabled()) {
+                this.getLogger().info("\u8fdb\u5ea6\u6761\u66f4\u65b0\u4efb\u52a1\u5df2\u542f\u52a8\uff0c\u95f4\u9694\uff1a" + updateInterval + " ticks");
+            }
+        }
     }
 
-    /**
-     * 注册所有事件监听器
-     */
     private void registerListeners() {
-        PluginManager pm = getServer().getPluginManager();
-
-        // 初始化并注册熔炉监听器
-        furnaceListener = new FurnaceListener(this);
-        pm.registerEvents(furnaceListener, this);
-
-        // 初始化并注册物品栏监听器
-        inventoryListener = new InventoryListener(this);
-        pm.registerEvents(inventoryListener, this);
+        PluginManager pm = this.getServer().getPluginManager();
+        this.furnaceListener = new FurnaceListener(this);
+        pm.registerEvents((Listener)this.furnaceListener, (Plugin)this);
+        this.inventoryListener = new InventoryListener(this);
+        pm.registerEvents((Listener)this.inventoryListener, (Plugin)this);
+        this.explosionListener = new ExplosionListener(this);
+        pm.registerEvents((Listener)this.explosionListener, (Plugin)this);
+        if (this.configManager.isDebugEnabled()) {
+            this.messageUtil.logDebug("plugin.listeners_registered", new Object[0]);
+        }
     }
 
-    /**
-     * 注册命令
-     */
     private void registerCommands() {
         FurnaceCommand furnaceCommand = new FurnaceCommand(this);
-        getCommand("furnace").setExecutor(furnaceCommand);
-        getCommand("furnace").setTabCompleter(furnaceCommand);
+        this.getCommand("furnace").setExecutor((CommandExecutor)furnaceCommand);
+        this.getCommand("furnace").setTabCompleter((TabCompleter)furnaceCommand);
+        if (this.configManager.isDebugEnabled()) {
+            this.messageUtil.logDebug("plugin.commands_registered", new Object[0]);
+        }
     }
 
-    @Override
     public void onDisable() {
-        // 清理所有TextDisplay全息显示
-        if (hologramManager != null) {
-            hologramManager.clearAllHolograms();
+        this.getServer().getScheduler().cancelTasks((Plugin)this);
+        if (this.dataManager != null && this.configManager.isArmorstandHologramEnabled()) {
+            this.getServer().getWorlds().forEach(world -> world.getEntities().stream().filter(entity -> entity instanceof TextDisplay).map(entity -> (TextDisplay)entity).filter(textDisplay -> textDisplay.getText() != null).forEach(Entity::remove));
         }
-
-        // 保存数据
-        if (dataManager != null) {
-            dataManager.shutdown();
+        if (this.dataManager != null) {
+            this.dataManager.shutdown();
         }
-
-        // 保存配置
-        if (configManager != null) {
-            configManager.saveConfigs();
+        if (this.configManager != null) {
+            this.configManager.saveConfigs();
         }
-
-        // 输出停止信息
-        if (langManager != null) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "[CustomFurnace] " + ChatColor.RED + langManager.getRawMessage("plugin.disable"));
+        if (this.langManager != null) {
+            Bukkit.getConsoleSender().sendMessage(String.valueOf(ChatColor.DARK_AQUA) + "[CustomFurnace] " + String.valueOf(ChatColor.RED) + this.langManager.getRawMessage("plugin.disable"));
         }
     }
 
-    /**
-     * 获取配置管理器
-     */
     public ConfigManager getConfigManager() {
-        return configManager;
+        return this.configManager;
     }
 
-    /**
-     * 获取语言管理器
-     */
     public LangManager getLangManager() {
-        return langManager;
+        return this.langManager;
     }
 
-    /**
-     * 获取熔炉管理器
-     */
     public FurnaceManager getFurnaceManager() {
-        return furnaceManager;
+        return this.furnaceManager;
     }
 
-    /**
-     * 获取数据管理器
-     */
     public DataManager getDataManager() {
-        return dataManager;
+        return this.dataManager;
     }
 
-    /**
-     * 获取消息工具
-     */
     public MessageUtil getMessageUtil() {
-        return messageUtil;
+        return this.messageUtil;
     }
 
-    /**
-     * 获取经济管理器
-     */
     public EconomyManager getEconomyManager() {
-        return economyManager;
+        return this.economyManager;
     }
 
-    /**
-     * 获取物品栏监听器
-     */
     public InventoryListener getInventoryListener() {
-        return inventoryListener;
+        return this.inventoryListener;
     }
 
-    /**
-     * 获取全息显示管理器
-     */
-    public HologramManager getHologramManager() {
-        return hologramManager;
+    public TextDisplayUtil getTextDisplayUtil() {
+        return this.textDisplayUtil;
     }
 }
+

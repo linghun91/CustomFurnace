@@ -3,9 +3,49 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
+// 版本管理
+def versionFile = file('version.properties')
+def currentVersion = '1.21.4'
+
+// 读取当前版本
+if (versionFile.exists()) {
+    def props = new Properties()
+    versionFile.withInputStream { props.load(it) }
+    currentVersion = props.getProperty('version', '1.21.4')
+}
+
+// 自动迭代版本号
+def getNextVersion(String currentVer) {
+    def versionParts = currentVer.split('\\.')
+    if (versionParts.length >= 3) {
+        def major = versionParts[0] as int
+        def minor = versionParts[1] as int
+        def patch = versionParts[2] as int
+        def build = versionParts.length > 3 ? (versionParts[3] as int) : 0
+
+        // 迭代版本号：第四位+1，如果没有第四位则添加
+        build++
+
+        return "${major}.${minor}.${patch}.${build}"
+    }
+    return currentVer
+}
+
+// 获取新版本号并立即更新
+def newVersion = getNextVersion(currentVersion)
+
+// 更新 version.properties
+def props = new Properties()
+props.setProperty('version', newVersion)
+props.setProperty('lastBuild', new Date().toString())
+props.setProperty('buildCount', String.valueOf(newVersion.split('\\.')[3]))
+versionFile.withOutputStream { props.store(it, 'Auto-incremented version for CustomFurnace') }
+
+println "CustomFurnace版本已从 ${currentVersion} 更新到 ${newVersion}"
+
 group = 'cn.i7mc'
-version = '1.0.5'
-description = 'CustomFurnace'
+version = newVersion
+description = '一款高级熔炉插件，支持自定义熔炉等级和升级'
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -19,75 +59,108 @@ repositories {
         name = 'papermc-repo'
         url = 'https://repo.papermc.io/repository/maven-public/'
     }
-
-    // Spigot API (备用)
-    maven {
-        name = 'spigotmc-repo'
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-
-    // Sonatype
-    maven {
-        name = 'sonatype'
-        url = 'https://oss.sonatype.org/content/groups/public/'
-    }
 }
 
 dependencies {
-    // Paper API 1.20.1 作为核心依赖
+    // Paper API 1.20.1
     compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 
-    // 本地依赖 - Vault
-    compileOnly files('libs/Vault.jar')
-
-    // 本地依赖 - PlayerPoints
-    compileOnly files('libs/PlayerPoints.jar')
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-shadowJar {
-    archiveClassifier = ''
-
-    // 排除不需要的文件
-    exclude 'META-INF/**'
-
-    // 重定位包（如果需要）
-    // relocate 'org.example', 'cn.i7mc.customfurnace.libs.example'
-}
-
-// 设置默认任务
-defaultTasks 'shadowJar'
-
-// 处理资源文件
-processResources {
-    def props = [version: version]
-    inputs.properties props
-    filteringCharset 'UTF-8'
-    filesMatching('plugin.yml') {
-        expand props
+    // 本地libs文件夹下的所有jar依赖（包括Vault和PlayerPoints）
+    fileTree(dir: 'libs', include: ['*.jar']).forEach { file ->
+        compileOnly files(file)
     }
 }
 
-// 确保编译时使用正确的Java版本
+processResources {
+    def resourceProps = [version: version, description: description]
+    inputs.properties resourceProps
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand resourceProps
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    
+    // 重定位依赖包，避免冲突
+    relocate 'org.bstats', 'cn.i7mc.customfurnace.libs.bstats'
+    
+    // 排除不需要的文件
+    exclude 'META-INF/**'
+    exclude '**/*.kotlin_metadata'
+    exclude '**/*.kotlin_builtins'
+    exclude '**/*.kotlin_module'
+    
+    // 最小化jar包
+    minimize()
+}
+
 compileJava {
-    options.release = 17
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-parameters']
 }
 
-// 生成源码jar
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
+compileTestJava {
+    options.encoding = 'UTF-8'
 }
 
-// 添加到artifacts
-artifacts {
-    archives sourcesJar
+jar {
+    enabled = false
+}
+
+build {
+    dependsOn shadowJar
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 // 清理任务
 clean {
     delete 'build'
+}
+
+// 版本管理任务
+task showVersion {
+    doLast {
+        def verFile = file('version.properties')
+        if (verFile.exists()) {
+            def verProps = new Properties()
+            verFile.withInputStream { verProps.load(it) }
+            println "当前版本: ${verProps.getProperty('version')}"
+            println "最后构建: ${verProps.getProperty('lastBuild')}"
+            println "构建次数: ${verProps.getProperty('buildCount')}"
+        } else {
+            println "版本文件不存在"
+        }
+    }
+}
+
+task resetVersion {
+    doLast {
+        def verFile = file('version.properties')
+        def verProps = new Properties()
+        verProps.setProperty('version', '1.21.4')
+        verProps.setProperty('lastBuild', new Date().toString())
+        verProps.setProperty('buildCount', '0')
+        verFile.withOutputStream { verProps.store(it, 'Reset version for CustomFurnace') }
+        println "版本已重置为 1.21.4"
+    }
+}
+
+task setMajorVersion {
+    doLast {
+        if (!project.hasProperty('newVersion')) {
+            throw new GradleException("请使用 -PnewVersion=x.y.z 指定新的主版本号")
+        }
+        def verFile = file('version.properties')
+        def verProps = new Properties()
+        verProps.setProperty('version', project.newVersion)
+        verProps.setProperty('lastBuild', new Date().toString())
+        verProps.setProperty('buildCount', '0')
+        verFile.withOutputStream { verProps.store(it, 'Set major version for CustomFurnace') }
+        println "主版本号已设置为 ${project.newVersion}"
+    }
 }

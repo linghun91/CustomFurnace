@@ -5,7 +5,8 @@ plugin:
   disable: "CustomFurnace插件已停止"
 furnace:
   name: "&6高级熔炉"
-  hover_display: "&f%display% &7[&d%level%级&7] &7[&e%payment_type%&7] &7[&a%speed%tick&7]"  # 悬浮显示格式
+  hologram_hud: "&f%display% &7[&d%level%级&7] &7[&e%payment_type%&7] &7[&a%speed%tick&7]"  # 文本显示全息显示格式
+  dropped_item_hud: "&f%display% &7[&d%level%级&7] &7[&e%payment_type%&7] &7[&a%speed%tick&7]"  # 掉落物悬浮显示格式
   lore:
     - "&8&m-------------"
     - "&f等级: &d%level%"
@@ -55,15 +56,8 @@ messages:
   furnace_info_max_level: "&c已达到最高等级"
   vault_not_found: "&c未找到Vault插件，无法使用金币升级"
   points_not_found: "&c未找到PlayerPoints插件，无法使用点券升级"
-payment_types:
-  vault: "金币"
-  points: "点券"
-economy_status:
-  header: "&6=== 经济系统状态 ==="
-  vault_enabled: "&fVault经济系统: &a已启用"
-  vault_disabled: "&fVault经济系统: &c未启用"
-  points_enabled: "&fPlayerPoints点券系统: &a已启用"
-  points_disabled: "&fPlayerPoints点券系统: &c未启用"
-  vault_balance: "&f您的金币余额: &e%balance%"
-  points_balance: "&f您的点券余额: &b%balance%"
-  footer: "&6=================="
+hologram:
+  title: "&a&l自定义熔炉 &f[&6%level%&f]"
+  info: "&e烧制进度: %percentage%"
+  progress_active: "&a正在烧制..."
+  progress_inactive: "&7空闲中" 

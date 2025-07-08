@@ -1,22 +1,17 @@
 package cn.i7mc.customfurnace.managers;
 
 import cn.i7mc.customfurnace.CustomFurnace;
+import java.io.File;
+import java.io.IOException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
-
-/**
- * 配置管理器
- */
 public class ConfigManager {
     private final CustomFurnace plugin;
     private final File configFile;
-    private File messagesFile;
-    private File debugMessagesFile;
+    private final File messagesFile;
+    private final File debugMessagesFile;
     private final File furnacesFile;
-
     private FileConfiguration config;
     private FileConfiguration messagesConfig;
     private FileConfiguration debugMessagesConfig;
@@ -25,175 +20,172 @@ public class ConfigManager {
     public ConfigManager(CustomFurnace plugin) {
         this.plugin = plugin;
         this.configFile = new File(plugin.getDataFolder(), "config.yml");
+        this.messagesFile = new File(plugin.getDataFolder(), "message.yml");
+        this.debugMessagesFile = new File(plugin.getDataFolder(), "debugmessage.yml");
         this.furnacesFile = new File(plugin.getDataFolder(), "furnaces.yml");
-
-        // 保存默认配置
-        saveDefaultConfigs();
-
-        // 加载配置
-        loadConfigs();
-
-        // 根据语言配置设置消息文件路径
-        updateLanguageFiles();
+        this.saveDefaultConfigs();
+        this.loadConfigs();
     }
 
-    /**
-     * 根据语言配置更新消息文件路径
-     */
-    private void updateLanguageFiles() {
-        String language = getLanguage();
-        this.messagesFile = new File(plugin.getDataFolder(), "message_" + language + ".yml");
-        this.debugMessagesFile = new File(plugin.getDataFolder(), "debugmessage_" + language + ".yml");
-
-        // 重新加载消息配置
-        loadMessageConfigs();
-    }
-
-    /**
-     * 获取当前语言设置
-     */
-    public String getLanguage() {
-        return config.getString("language", "en");
-    }
-
-    /**
-     * 保存默认配置
-     */
     private void saveDefaultConfigs() {
-        plugin.saveDefaultConfig();
-        plugin.saveResource("furnaces.yml", false);
-
-        // 保存默认语言文件
-        plugin.saveResource("message_en.yml", false);
-        plugin.saveResource("message_zh.yml", false);
-        plugin.saveResource("debugmessage_en.yml", false);
-        plugin.saveResource("debugmessage_zh.yml", false);
+        this.plugin.saveDefaultConfig();
+        if (!this.messagesFile.exists()) {
+            this.plugin.saveResource("message.yml", false);
+        }
+        if (!this.furnacesFile.exists()) {
+            this.plugin.saveResource("furnaces.yml", false);
+        }
+        if (!this.debugMessagesFile.exists()) {
+            this.plugin.saveResource("debugmessage.yml", false);
+        }
     }
 
-    /**
-     * 加载所有配置
-     */
     private void loadConfigs() {
-        // 加载主配置
-        config = plugin.getConfig();
-        furnacesConfig = YamlConfiguration.loadConfiguration(furnacesFile);
+        this.config = this.plugin.getConfig();
+        this.messagesConfig = YamlConfiguration.loadConfiguration((File)this.messagesFile);
+        this.debugMessagesConfig = YamlConfiguration.loadConfiguration((File)this.debugMessagesFile);
+        this.furnacesConfig = YamlConfiguration.loadConfiguration((File)this.furnacesFile);
     }
 
-    /**
-     * 加载消息配置文件
-     */
-    private void loadMessageConfigs() {
-        if (messagesFile != null && messagesFile.exists()) {
-            messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
-        }
-        if (debugMessagesFile != null && debugMessagesFile.exists()) {
-            debugMessagesConfig = YamlConfiguration.loadConfiguration(debugMessagesFile);
-        }
-    }
-
-    /**
-     * 获取主配置文件
-     */
     public FileConfiguration getConfig() {
-        return config;
+        return this.config;
     }
 
-    /**
-     * 获取消息配置文件
-     */
     public FileConfiguration getMessagesConfig() {
-        return messagesConfig;
+        return this.messagesConfig;
     }
 
-    /**
-     * 获取调试消息配置文件
-     */
     public FileConfiguration getDebugMessagesConfig() {
-        return debugMessagesConfig;
+        return this.debugMessagesConfig;
     }
 
-    /**
-     * 获取熔炉配置文件
-     */
     public FileConfiguration getFurnacesConfig() {
-        return furnacesConfig;
+        return this.furnacesConfig;
     }
 
-    /**
-     * 获取消息配置文件
-     */
     public File getMessagesFile() {
-        return messagesFile;
+        return this.messagesFile;
     }
 
-    /**
-     * 获取调试消息配置文件
-     */
     public File getDebugMessagesFile() {
-        return debugMessagesFile;
+        return this.debugMessagesFile;
     }
 
-    /**
-     * 重载所有配置
-     */
     public void reloadConfigs() {
-        // 重载主配置
-        plugin.reloadConfig();
-        config = plugin.getConfig();
-
-        // 根据新的语言配置更新消息文件路径
-        updateLanguageFiles();
-
-        // 重载熔炉配置
-        furnacesConfig = YamlConfiguration.loadConfiguration(furnacesFile);
-
-        // 通知其他管理器重载
-        plugin.getDataManager().applyAllFurnaces();
-        plugin.getLangManager().reload();
-        plugin.getHologramManager().reloadHologramConfig();
+        this.plugin.reloadConfig();
+        this.config = this.plugin.getConfig();
+        this.messagesConfig = YamlConfiguration.loadConfiguration((File)this.messagesFile);
+        this.debugMessagesConfig = YamlConfiguration.loadConfiguration((File)this.debugMessagesFile);
+        this.furnacesConfig = YamlConfiguration.loadConfiguration((File)this.furnacesFile);
+        this.plugin.getDataManager().applyAllFurnaces();
+        this.plugin.getLangManager().reload();
     }
 
-    /**
-     * 保存所有配置
-     */
     public void saveConfigs() {
         try {
-            config.save(configFile);
-            messagesConfig.save(messagesFile);
-            debugMessagesConfig.save(debugMessagesFile);
-            furnacesConfig.save(furnacesFile);
+            this.config.save(this.configFile);
+            this.messagesConfig.save(this.messagesFile);
+            this.debugMessagesConfig.save(this.debugMessagesFile);
+            this.furnacesConfig.save(this.furnacesFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("保存配置文件失败: " + e.getMessage());
+            this.plugin.getLogger().severe("\u4fdd\u5b58\u914d\u7f6e\u6587\u4ef6\u5931\u8d25: " + e.getMessage());
         }
     }
 
-    /**
-     * 检查是否启用调试模式
-     */
     public boolean isDebugEnabled() {
-        return config.getBoolean("debug", false);
+        return this.config.getBoolean("debug", false);
     }
 
-    /**
-     * 检查是否启用TextDisplay全息信息显示
-     */
-    public boolean isTextDisplayHologramEnabled() {
-        return config.getBoolean("display.text-display-hologram", true);
-    }
-
-    /**
-     * 向后兼容的方法名
-     * @deprecated 使用 isTextDisplayHologramEnabled() 代替
-     */
-    @Deprecated
     public boolean isArmorstandHologramEnabled() {
-        return isTextDisplayHologramEnabled();
+        return this.config.getBoolean("display.text-display-hologram", true);
     }
 
-    /**
-     * 检查是否启用掉落物悬浮标签显示
-     */
     public boolean isDroppedItemHologramEnabled() {
-        return config.getBoolean("display.dropped-item-hologram", true);
+        return this.config.getBoolean("display.dropped-item-hologram", true);
+    }
+
+    public String getTextDisplayAlignment() {
+        return this.config.getString("display.text-display-settings.alignment", "CENTER");
+    }
+
+    public boolean isTextDisplayShadowed() {
+        return this.config.getBoolean("display.text-display-settings.shadowed", true);
+    }
+
+    public boolean isTextDisplaySeeThrough() {
+        return this.config.getBoolean("display.text-display-settings.see-through", true);
+    }
+
+    public String getTextDisplayBillboard() {
+        return this.config.getString("display.text-display-settings.billboard", "CENTER");
+    }
+
+    public int[] getTextDisplayBackgroundColor() {
+        String colorStr = this.config.getString("display.text-display-settings.background-color", "0,0,0,0");
+        String[] parts = colorStr.split(",");
+        int[] color = new int[4];
+        try {
+            for (int i = 0; i < 4 && i < parts.length; ++i) {
+                color[i] = Integer.parseInt(parts[i].trim());
+                color[i] = Math.max(0, Math.min(255, color[i]));
+            }
+        } catch (NumberFormatException e) {
+            this.plugin.getLogger().warning("\u80cc\u666f\u989c\u8272\u683c\u5f0f\u9519\u8bef\uff0c\u4f7f\u7528\u9ed8\u8ba4\u503c: " + e.getMessage());
+            return new int[]{0, 0, 0, 0};
+        }
+        return color;
+    }
+
+    public byte getTextDisplayOpacity() {
+        int opacity = this.config.getInt("display.text-display-settings.text-opacity", -1);
+        return (byte)Math.max(-1, Math.min(255, opacity));
+    }
+
+    public int getTextDisplayLineWidth() {
+        return this.config.getInt("display.text-display-settings.line-width", 200);
+    }
+
+    public double getTextDisplayYOffset() {
+        return this.config.getDouble("display.text-display-settings.y-offset", 0.8);
+    }
+
+    public boolean isProgressBarEnabled() {
+        return this.config.getBoolean("display.progress-bar.enabled", true);
+    }
+
+    public int getProgressBarUpdateInterval() {
+        return this.config.getInt("display.progress-bar.update-interval", 10);
+    }
+
+    public int getProgressBarLength() {
+        return this.config.getInt("display.progress-bar.length", 15);
+    }
+
+    public String getProgressBarCharacter() {
+        return this.config.getString("display.progress-bar.character", "I");
+    }
+
+    public String getProgressBarStartChar() {
+        return this.config.getString("display.progress-bar.start-char", "[");
+    }
+
+    public String getProgressBarEndChar() {
+        return this.config.getString("display.progress-bar.end-char", "]");
+    }
+
+    public String getProgressBarBorderColor() {
+        return this.config.getString("display.progress-bar.border-color", "&8");
+    }
+
+    public String[] getProgressBarFilledColors() {
+        if (this.config.isList("display.progress-bar.filled-colors")) {
+            return this.config.getStringList("display.progress-bar.filled-colors").toArray(new String[0]);
+        }
+        return new String[]{"&a", "&e", "&c"};
+    }
+
+    public String getProgressBarEmptyColor() {
+        return this.config.getString("display.progress-bar.empty-color", "&7");
     }
 }
+
